@@ -1,16 +1,12 @@
-// encode.cpp : Defines the entry point for the console application.
-//
-
-#include "stdafx.h"
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <iostream>
 #include <map>
-
 
 using namespace std;
 
-string Encode(string, string, string);
+void Encode(string, string, string);
 string EncodeMessage(string, map<char, string>);
 string ReadMessage(string);
 map<char, string> GenerateCodeTable(string);
@@ -18,31 +14,26 @@ void WriteBinary(string, string);
 
 int main(int argc, char * argv[])
 {
-	// code, message, encode
-	Encode(argv[2], argv[1], argv[3]);
-
-
+	/*if (argc != 4) {
+		cout << "Error: Requires 3 arguments!";
+		return -1;
+	}*/
+	//Encode(argv[1], argv[2], argv[3]);
+	Encode("D:\\codefile.txt", "D:\\basic_message.txt", "D:\\encoded.bin");
     return 0;
 }
 
-string Encode(string messageFile, string codeFile, string encodedMessage) 
+void Encode(string codeFile, string messageFile, string encodedMessage)
 {
 	string message = ReadMessage(messageFile);
 	map<char, string> myMap = GenerateCodeTable(codeFile);
-
 	message = EncodeMessage(message, myMap);
-
 	WriteBinary(message, encodedMessage);
-
-	return "test";
 }
 
 void WriteBinary(string encodedMessage, string encodedMessageFile) 
 {
 	ofstream encodedMessageStream(encodedMessage, ios::out | ios::binary);
-	//encodedMessageStream.write()
-
-	/*ofstream numFile;*/
 	unsigned char buffer = 0;
 	int i = 0;
 	int j = 0;
@@ -62,18 +53,15 @@ void WriteBinary(string encodedMessage, string encodedMessageFile)
 	encodedMessageStream.write((char*)&buffer, 1);
 
 	encodedMessageStream.close();
-
 }
 
 
 string EncodeMessage(string message, map<char, string> codeTable) 
 {
 	string encodedMessage;
-
 	for (int i = 0; i < message.length(); i++) {
 		encodedMessage += codeTable[message[i]];
 	}
-
 	return encodedMessage;
 }
 

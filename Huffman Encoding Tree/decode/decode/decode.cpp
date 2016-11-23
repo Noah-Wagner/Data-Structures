@@ -1,9 +1,4 @@
-// decode.cpp : Defines the entry point for the console application.
-//
-
-#include "stdafx.h"
 #include <iostream>
-#include "decode.h"
 #include <fstream>
 #include <stack>
 #include <string>
@@ -18,22 +13,62 @@ struct HuffNode {
 
 };
 HuffNode * ConstructTree(string treeFile);
-string Decode(string treeFile, string encodedMessageFile, string messageFile);
+void Decode(string treeFile, string encodedMessageFile, string messageFile);
+string ReadEncodedMessage(string);
+string DecodeMessage(string, HuffNode*);
+void WriteDecodedMessage(string, string);
+
 
 
 int main(int argc, char * argv[])
 {
-	//<treefile> <encodedmessagefile> <messagefile>
-
+	
 	Decode(argv[1], argv[2], argv[3]);
 
     return 0;
 }
 
-string Decode(string treeFile, string encodedMessageFile, string messageFile) {
-
+void Decode(string treeFile, string encodedMessageFile, string messageFile) 
+{
 	HuffNode * root = ConstructTree(treeFile);
-	return "";
+	string encodedMessage = ReadEncodedMessage(encodedMessageFile);
+	string decodedMessage = DecodeMessage(encodedMessage, root);
+	WriteDecodedMessage(messageFile, decodedMessage);
+}
+
+string ReadEncodedMessage(string encodedMessageFile)
+{
+	string encodedMessage;
+	ifstream encodedMessageStream(encodedMessageFile, ios::in | ios::binary);
+	while (!encodedMessageStream.eof()) {
+		encodedMessage.append(1, encodedMessageStream.get());
+	}
+	return encodedMessage;
+}
+
+string DecodeMessage(string encodedMessage, HuffNode * root)
+{
+	HuffNode * node = root;
+	string decodedMessage;
+	for (int i = 0; i < encodedMessage.length(); i++) {
+		if (encodedMessage[i] == '0') {
+			node = node->left;
+		} else {
+			node = node->right;
+		}
+		if (!node->left && !node->right) {
+			decodedMessage += node->myChar;
+			node = root;
+		}
+	}
+	return decodedMessage;
+}
+
+void WriteDecodedMessage(string decodedMessage, string messageFile)
+{
+	ofstream decodedMessageStream(messageFile);
+	decodedMessageStream << decodedMessage;
+	decodedMessageStream.close();
 }
 
 HuffNode * ConstructTree(string treeFile)
@@ -41,7 +76,7 @@ HuffNode * ConstructTree(string treeFile)
 	ifstream treeStream(treeFile);
 	string line;
 	stack<HuffNode*> myStack;
-	HuffNode * root;
+	HuffNode * root = nullptr;
 	if (treeStream.is_open()) {
 		getline(treeStream, line);
 
